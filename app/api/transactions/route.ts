@@ -14,9 +14,14 @@ interface LineTransaction {
 }
 
 // Flex message format
+interface FlexContentElement {
+  text?: string;
+  contents?: FlexContentElement[];
+}
+
 interface FlexContentItem {
   layout: string;
-  contents: any[];
+  contents: FlexContentElement[];
 }
 
 interface LineMessage {
@@ -35,37 +40,9 @@ interface LineApiResponse {
 async function fetchLineTransactions(
   hmac: string,
   accessToken: string,
-  bodyTokens: any[]
+  bodyTokens: (string | number)[] 
 ): Promise<LineTransaction[]> {
   try {
-    // const response = await fetch(
-    //   "https://line-chrome-gw.line-apps.com/api/talk/thrift/Talk/TalkService/getRecentMessagesV2",
-    //   {
-    //     headers: {
-    //       accept: "application/json, text/plain, */*",
-    //       "accept-language": "en-US",
-    //       "content-type": "application/json",
-    //       priority: "u=1, i",
-    //       "sec-ch-ua": '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-    //       "sec-ch-ua-mobile": "?0",
-    //       "sec-ch-ua-platform": '"Windows"',
-    //       "sec-fetch-dest": "empty",
-    //       "sec-fetch-mode": "cors",
-    //       "sec-fetch-site": "none",
-    //       "sec-fetch-storage-access": "active",
-    //       "x-hmac": "yLeOn9efax3ulMd4RcR0i8cKex9tJrLWh0byVRKNXxg=",
-    //       "x-lal": "en_US",
-    //       "x-line-access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzYWY4NWFmMS00ZjA0LTRiMTctYjhkZi1kNDUxNGUxZjI5OWMiLCJhdWQiOiJMSU5FIiwiaWF0IjoxNzUzNjMyNTcxLCJleHAiOjE3NTQyMzczNzEsInNjcCI6IkxJTkVfQ09SRSIsInJ0aWQiOiI5YjMwMGM2Ny1iMjI2LTRkYzQtOTlkNy04NDQ3NjA1MzlkYjIiLCJyZXhwIjoxNzg1MTY4NTcxLCJ2ZXIiOiIzLjEiLCJhaWQiOiJ1ZmEyZDk5NTQwYjgwYTZiYTEwZGMwYWQ0NjY2MjRkMmIiLCJsc2lkIjoiOTU5MGE0ZGItZDViZC00NTY2LTk3ZjgtZDNjZDhjYWQ1YzQ4IiwiZGlkIjoiTk9ORSIsImN0eXBlIjoiQ0hST01FT1MiLCJjbW9kZSI6IlNFQ09OREFSWSIsImNpZCI6IjAzMDAwMDAwMDAifQ.Eeg_H6_4EilW6sTRvm65GULGm9ukhHmeXlO-ZuUf1oY",
-    //       "x-line-chrome-version": "3.7.0",
-    //     },
-    //     body: '["UcKk3hMFWI4_AWSP1tAd3GOK5mc8-FzIDR1QZKI5h4X4",50]',
-    //     method: "POST",
-    //   }
-    // )
-    // console.log(JSON.stringify(bodyTokens));
-    // console.log(hmac);
-    // console.log(accessToken);
-
     const response = await fetch(
       "https://line-chrome-gw.line-apps.com/api/talk/thrift/Talk/TalkService/getRecentMessagesV2",
       {
@@ -158,7 +135,7 @@ function extractDataFromFlexJson(flexJson: string): {
           );
           bankSender = toAcc?.contents?.[1]?.text ?? "";
         } else {
-          bankSender = valueText;
+          bankSender = valueText ?? "";
         }
       }
     }
@@ -187,6 +164,7 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
     }
+
     if (!account || !xkey) {
       return NextResponse.json(
         { status: "failed", msg: "ข้อมูลไม่ครบถ้วน" },
@@ -201,10 +179,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const transactions = await fetchLineTransactions(user.hmac, user.line_accress_token, [
-      user.body_token,
-      50,
-    ]);
+    // ✅ Fix: Check for required fields before calling the function
+    if (!user.hmac || !user.line_accress_token || !user.body_token) {
+      return NextResponse.json(
+        { status: "failed", msg: "ข้อมูลการเชื่อมต่อไม่ครบถ้วน" },
+        { status: 400 }
+      );
+    }
+
+    const transactions = await fetchLineTransactions(
+      user.hmac, 
+      user.line_accress_token, 
+      [user.body_token, 50]
+    );
 
     if (transactions.length === 0) {
       return NextResponse.json(
