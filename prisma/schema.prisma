@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      =  "mysql://u436155_niehgTRDDG:gGq2Fb6aj6V8y6yMzcYc=.3X@us.mysql.db.bot-hosting.net:3306/s436155_test"
+
+}
+
+model User {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  account            String   @unique
+  xkey               String   @unique
+  hmac               String   @unique
+  line_accress_token String   @db.Text
+  body_token         String   @db.Text
+  StartTime          DateTime @default(now())
+  EndTime            DateTime @default(now())
+}
+
