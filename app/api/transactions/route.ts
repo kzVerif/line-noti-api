@@ -40,7 +40,7 @@ interface LineApiResponse {
 async function fetchLineTransactions(
   hmac: string,
   accessToken: string,
-  bodyTokens: (string | number)[]
+  bodyTokens: (string | number)[] 
 ): Promise<LineTransaction[]> {
   try {
     const response = await fetch(
@@ -124,15 +124,11 @@ function extractDataFromFlexJson(flexJson: string): {
 
     if (item.layout === "baseline") {
       const [label, value] = item.contents ?? [];
-      const labelText = label?.text;
-      const valueText = value?.text;
+      const labelText = label?.text?.trim();
+      const valueText = value?.text?.trim();
 
-      if (labelText === "จากบัญชี") {
-        const toAcc = contents.find(
-          (c) =>
-            c.layout === "baseline" && c.contents?.[0]?.text === "ไปยังบัญชี"
-        );
-        bankSender = toAcc?.contents?.[1]?.text ?? "";
+      if (labelText === "จากบัญชี" && valueText) {
+        bankSender = valueText;
       }
     }
   }
@@ -184,8 +180,8 @@ export async function POST(req: NextRequest) {
     }
 
     const transactions = await fetchLineTransactions(
-      user.hmac,
-      user.line_accress_token,
+      user.hmac, 
+      user.line_accress_token, 
       [user.body_token, 50]
     );
 
