@@ -291,7 +291,7 @@ export default function LineBankAPILanding() {
                 <h3 className="text-xl font-semibold">API Endpoint</h3>
               </div>
               <div className="bg-gray-100 p-4 rounded-lg font-mono text-sm">
-                GET /api/transactions
+                POST https://line-noti-api.vercel.app/api/transactions
               </div>
             </div>
 
