@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Fix: Check for required fields before calling the function
-    if (!user.hmac || !user.line_accress_token || !user.body_token) {
+    if (!user.hmac || !user.line_access_token || !user.body_token) {
       return NextResponse.json(
         { status: "failed", msg: "ข้อมูลการเชื่อมต่อไม่ครบถ้วน" },
         { status: 400 }
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
 
     const transactions = await fetchLineTransactions(
       user.hmac, 
-      user.line_accress_token, 
+      user.line_access_token, 
       [user.body_token, 50]
     );
 

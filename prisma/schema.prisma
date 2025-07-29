@@ -12,11 +12,12 @@ model User {
   id                 Int      @id @default(autoincrement())
   name               String
   account            String   @unique
-  xkey               String   @unique
-  hmac               String   @unique
-  line_accress_token String   @db.Text
-  body_token         String   @db.Text
+  xkey               String   @db.Text @default("invalid")
+  hmac               String   @db.Text @default("invalid")
+  line_access_token  String   @db.Text @default("invalid")
+  body_token         String   @db.Text @default("invalid")
   StartTime          DateTime @default(now())
   EndTime            DateTime @default(now())
 }
+
 
