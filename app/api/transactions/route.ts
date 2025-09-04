@@ -48,22 +48,14 @@ async function fetchLineTransactions(
       {
         method: "POST",
         headers: {
-          accept: "application/json, text/plain, */*",
-          "content-type": "application/json",
-          "x-hmac": hmac,
-          "x-line-access": accessToken,
-          "x-lal": "en_US",
-          "x-line-chrome-version": "3.7.0",
-          priority: "u=1, i",
-          "sec-ch-ua":
-            '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": '"Windows"',
-          "sec-fetch-dest": "empty",
-          "sec-fetch-mode": "cors",
-          "sec-fetch-site": "none",
-          "sec-fetch-storage-access": "active",
-        },
+        accept: "application/json, text/plain, */*",
+        "content-type": "application/json",
+        "x-hmac": hmac,
+        "x-lal": "en_US",
+        "x-line-access":accessToken,
+        "x-line-chrome-version": "3.7.1",
+        cookie: "lct=YOUR_COOKIE"
+      },
         body: JSON.stringify(bodyTokens),
       }
     );

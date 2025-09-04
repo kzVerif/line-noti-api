@@ -4,20 +4,17 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      =  "mysql://u436155_niehgTRDDG:gGq2Fb6aj6V8y6yMzcYc=.3X@us.mysql.db.bot-hosting.net:3306/s436155_test"
-
+  url      = "mysql://2hhNYX13XhkrLri.root:YFjmdwd6BcwCns5o@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?sslaccept=strict"
 }
 
 model User {
-  id                 Int      @id @default(autoincrement())
-  name               String
-  account            String   @unique
-  xkey               String   @db.Text @default("invalid")
-  hmac               String   @db.Text @default("invalid")
-  line_access_token  String   @db.Text @default("invalid")
-  body_token         String   @db.Text @default("invalid")
-  StartTime          DateTime @default(now())
-  EndTime            DateTime @default(now())
+  id                Int      @id @default(autoincrement())
+  name              String
+  account           String   @unique
+  xkey              String   @db.Text
+  hmac              String   @db.Text
+  line_access_token String   @db.Text
+  body_token        String   @db.Text
+  StartTime         DateTime @default(now())
+  EndTime           DateTime @default(now())
 }
-
-
