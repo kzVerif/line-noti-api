@@ -1,16 +1,14 @@
-
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 // ✅ GET /api/line/balance/[id]
-// @ts-ignore
 export async function GET(
   req: Request,
-  context: { params: { id: string } }   // 👈 ต้องเป็น context แบบนี้
+  { params }: { params: { id: string } }
 ) {
-  const { id } = context.params;
+  const { id } = params;
 
   try {
     const user = await prisma.line_Noti_API.findUnique({
