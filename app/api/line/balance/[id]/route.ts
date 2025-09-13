@@ -1,9 +1,11 @@
+
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 // ✅ GET /api/line/balance/[id]
+// @ts-ignore
 export async function GET(
   req: Request,
   context: { params: { id: string } }   // 👈 ต้องเป็น context แบบนี้

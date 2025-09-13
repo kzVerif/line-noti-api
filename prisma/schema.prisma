@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://2hhNYX13XhkrLri.root:YFjmdwd6BcwCns5o@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?sslaccept=strict"
+  url      = env("DATABASE_URL")
 }
 
 model User {
