@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-
+// @ts-ignore
 // ✅ GET /api/line/balance/[id]
 export async function GET(
   req: Request,
