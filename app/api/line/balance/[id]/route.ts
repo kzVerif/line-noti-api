@@ -3,14 +3,16 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// ✅ GET /api/balance/[id]
+// ✅ GET /api/line/balance/[id]
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }   // 👈 ต้องเป็น context แบบนี้
 ) {
+  const { id } = context.params;
+
   try {
     const user = await prisma.line_Noti_API.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       select: { id: true, name: true, points: true },
     });
 
