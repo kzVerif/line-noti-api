@@ -18,3 +18,16 @@ model User {
   StartTime         DateTime @default(now())
   EndTime           DateTime @default(now())
 }
+
+model Line_Noti_API {
+  id                Int      @id @default(autoincrement())
+  name              String?  
+  account           String?  @unique
+  xkey              String   @db.Text
+  hmac              String   @db.Text
+  line_access_token String   @db.Text
+  body_token        String   @db.Text
+  points            Decimal? @db.Decimal(10, 2)
+
+  @@map("Line-Noti-API")
+}
