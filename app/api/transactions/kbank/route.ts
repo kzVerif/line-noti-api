@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
+ 
+  
     // 🔹 fetch จาก LINE API
     const response = await fetch(
       "https://line-chrome-gw.line-apps.com/api/talk/thrift/Talk/TalkService/getRecentMessagesV2",
@@ -81,6 +82,9 @@ export async function POST(req: NextRequest) {
     );
 
     const json = await response.json();
+       console.log(user);
+    console.log(json);
+    
 
     // 🔹 ดึง ALT_TEXT ที่เป็น "รายการเงินเข้า"
     const result = (json.data ?? [])
