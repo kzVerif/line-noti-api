@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
       where: { id: user.id },
       data: {
         points: {
-          decrement: 0.5, // ลดลง 0.5
+          decrement: 0.3, // ลดลง 0.5
         },
       },
     });
