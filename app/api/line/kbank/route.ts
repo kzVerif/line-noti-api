@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
     if (!user.hmac || !user.line_access_token || !user.body_token) {
       return NextResponse.json(
-        { status: "failed", msg: "ข้อมูลการเชื่อมต่อไม่ครบถ้วน" },
+        { status: "failed", msg: "ข้อมูล .har ผิดพลาดกรุณาอัพโหลดใหม่" },
         { status: 400 }
       );
     }
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       console.error(error);
     return NextResponse.json(
       { status: "error", message: "ข้อมูล .har ผิดพลาดกรุณาอัพโหลดใหม่" },
-      { status: 500 }
+      { status: 400 }
     );
     }
   } catch (error) {

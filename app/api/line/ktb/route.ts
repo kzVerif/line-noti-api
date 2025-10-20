@@ -60,8 +60,17 @@ async function fetchLineTransactions(
       }
     );
 
+    // ❌ ถ้า LINE ไม่ตอบกลับปกติ เช่น 401, 403, 500
+    if (!response.ok) {
+      throw new Error("LINE API Error");
+    }
+
     const json: LineApiResponse = await response.json();
-    console.log("this is data", json);
+
+    // ❌ ถ้าไม่มี field data หรือโครงสร้างไม่ตรง
+    if (!json || !Array.isArray(json.data)) {
+      throw new Error("Invalid HAR data");
+    }
 
     const messages = json.data ?? [];
 
@@ -70,6 +79,7 @@ async function fetchLineTransactions(
       .filter((t): t is LineTransaction => !!t);
   } catch (err) {
     console.error("Fetch error:", err);
+    // ✅ เมื่อ error — return array ว่าง เพื่อให้ POST ตรวจเจอและตอบกลับ error
     return [];
   }
 }
@@ -178,16 +188,15 @@ export async function POST(req: NextRequest) {
       [user.body_token, 50]
     );
 
-   
-
+    // 🔍 ถ้า transactions ว่าง = ดึงข้อมูลจาก LINE ไม่ได้
     if (transactions.length === 0) {
       return NextResponse.json(
-        { status: "failed", msg: "ไม่พบรายการโอนเงิน" },
-        { status: 404 }
+        { status: "error", message: "ข้อมูล .har ผิดพลาดกรุณาอัพโหลดใหม่" },
+        { status: 400 }
       );
     }
 
-     await prisma.line_Noti_API.update({
+    await prisma.line_Noti_API.update({
       where: { id: user.id },
       data: {
         points: {
