@@ -64,52 +64,60 @@ export async function POST(req: NextRequest) {
     }
 
     // 🔹 fetch จาก LINE API
-    const response = await fetch(
-      "https://line-chrome-gw.line-apps.com/api/talk/thrift/Talk/TalkService/getRecentMessagesV2",
-      {
-        method: "POST",
-        headers: {
-          accept: "application/json, text/plain, */*",
-          "content-type": "application/json",
-          "x-hmac": user.hmac,
-          "x-lal": "en_US",
-          "x-line-access": user.line_access_token,
-          "x-line-chrome-version": "3.7.1",
-        },
-        body: JSON.stringify([user.body_token, 50]),
-      }
-    );
-
-    const json = await response.json();
-    console.log(user);
-    console.log(json);
-
-    // 🔹 ดึง ALT_TEXT ที่เป็น "รายการเงินเข้า"
-    const result = (json.data ?? [])
-      .map((item: any) => item.contentMetadata?.ALT_TEXT)
-      .filter((text: string) => text && text.startsWith("รายการเงินเข้า"));
-
-    const parsed = result
-      .map((t: string, i: number) => parseAltText(t, i))
-      .filter(Boolean);
-
-    if (parsed.length === 0) {
-      return NextResponse.json(
-        { status: "failed", msg: "ไม่พบรายการเงินเข้า" },
-        { status: 404 }
+    try {
+      const response = await fetch(
+        "https://line-chrome-gw.line-apps.com/api/talk/thrift/Talk/TalkService/getRecentMessagesV2",
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "x-hmac": user.hmac,
+            "x-lal": "en_US",
+            "x-line-access": user.line_access_token,
+            "x-line-chrome-version": "3.7.1",
+          },
+          body: JSON.stringify([user.body_token, 50]),
+        }
       );
-    }
 
-    await prisma.line_Noti_API.update({
-      where: { id: user.id },
-      data: {
-        points: {
-          decrement: 0.3, // ลดลง 0.5
+      const json = await response.json();
+      console.log(user);
+      console.log(json);
+
+      // 🔹 ดึง ALT_TEXT ที่เป็น "รายการเงินเข้า"
+      const result = (json.data ?? [])
+        .map((item: any) => item.contentMetadata?.ALT_TEXT)
+        .filter((text: string) => text && text.startsWith("รายการเงินเข้า"));
+
+      const parsed = result
+        .map((t: string, i: number) => parseAltText(t, i))
+        .filter(Boolean);
+
+      if (parsed.length === 0) {
+        return NextResponse.json(
+          { status: "failed", msg: "ไม่พบรายการเงินเข้า" },
+          { status: 404 }
+        );
+      }
+
+      await prisma.line_Noti_API.update({
+        where: { id: user.id },
+        data: {
+          points: {
+            decrement: 0.3, // ลดลง 0.5
+          },
         },
-      },
-    });
+      });
 
-    return NextResponse.json({ status: "success", data: parsed });
+      return NextResponse.json({ status: "success", data: parsed });
+    } catch (error) {
+      console.error(error);
+    return NextResponse.json(
+      { status: "error", message: "ข้อมูล .har ผิดพลาดกรุณาอัพโหลดใหม่" },
+      { status: 500 }
+    );
+    }
   } catch (error) {
     console.error(error);
     return NextResponse.json(

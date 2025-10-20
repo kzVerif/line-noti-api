@@ -62,8 +62,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
- 
-  
+
     // 🔹 fetch จาก LINE API
     const response = await fetch(
       "https://line-chrome-gw.line-apps.com/api/talk/thrift/Talk/TalkService/getRecentMessagesV2",
@@ -82,16 +81,24 @@ export async function POST(req: NextRequest) {
     );
 
     const json = await response.json();
-       console.log(user);
+    //  console.log(user);
     console.log(json);
-    
+
+    if (json.code === 10051 || json.message === "RESPONSE_ERROR") {
+      return NextResponse.json(
+        { status: "failed", msg: ".har มีปัญหากรุณาติดต่อแอดมินเพื่อแก้ไข" },
+        { status: 404 }
+      );
+    }
 
     // 🔹 ดึง ALT_TEXT ที่เป็น "รายการเงินเข้า"
     const result = (json.data ?? [])
       .map((item: any) => item.contentMetadata?.ALT_TEXT)
       .filter((text: string) => text && text.startsWith("รายการเงินเข้า"));
 
-    const parsed = result.map((t: string, i: number) => parseAltText(t, i)).filter(Boolean);
+    const parsed = result
+      .map((t: string, i: number) => parseAltText(t, i))
+      .filter(Boolean);
 
     if (parsed.length === 0) {
       return NextResponse.json(
