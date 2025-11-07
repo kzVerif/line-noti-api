@@ -19,10 +19,6 @@ interface FlexContentElement {
   contents?: FlexContentElement[];
 }
 
-interface FlexContentItem {
-  layout: string;
-  contents: FlexContentElement[];
-}
 
 interface LineMessage {
   id: string;
@@ -32,9 +28,6 @@ interface LineMessage {
   };
 }
 
-interface LineApiResponse {
-  data: LineMessage[];
-}
 
 // ✅ ฟังก์ชันหลัก: ดึงข้อมูลและแปลง
 async function fetchLineTransactions(
