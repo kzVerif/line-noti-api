@@ -81,8 +81,6 @@ export async function POST(req: NextRequest) {
     );
 
     const json = await response.json();
-    //  console.log(user);
-    console.log(json);
 
     if (json.code === 10051 || json.message === "RESPONSE_ERROR") {
       return NextResponse.json(
@@ -90,6 +88,9 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
     }
+
+    console.log(json);
+    
 
     // 🔹 ดึง ALT_TEXT ที่เป็น "รายการเงินเข้า"
     const result = (json.data ?? [])
