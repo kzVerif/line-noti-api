@@ -13,28 +13,14 @@ interface LineTransaction {
   time: string;
 }
 
-// Flex message format
-interface FlexContentElement {
-  text?: string;
-  contents?: FlexContentElement[];
-}
-
-
-interface LineMessage {
-  id: string;
-  createdTime: number;
-  contentMetadata: {
-    FLEX_JSON?: string;
-  };
-}
-
-
 // ✅ ฟังก์ชันหลัก: ดึงข้อมูลและแปลง
 async function fetchLineTransactions(
   hmac: string,
   accessToken: string,
   bodyTokens: (string | number)[]
-): Promise<LineTransaction[]> {
+): Promise<
+  (LineTransaction & { account_to?: string | null; balance?: string | null })[]
+> {
   try {
     const response = await fetch(
       "https://line-chrome-gw.line-apps.com/api/talk/thrift/Talk/TalkService/getRecentMessagesV2",
@@ -53,27 +39,25 @@ async function fetchLineTransactions(
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`LINE API Error: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`LINE API Error: ${response.status}`);
 
     const res = await response.json();
 
-    if (!res || !Array.isArray(res.data)) {
+    if (!res || !Array.isArray(res.data))
       throw new Error("Invalid LINE API response structure");
-    }
 
     const result = res.data
       .map((msg: any) => {
         const meta = msg.contentMetadata;
         const alt = meta?.ALT_TEXT || "";
 
-        // ✅ ดึงยอดเงินจาก ALT_TEXT เช่น “รายการเงินเข้า 50.00 บาท ...”
+        // ✅ ดึงยอดเงินจาก ALT_TEXT
         const matchAmount = alt.match(/([\d,]+\.\d{2}) บาท/);
         const matchDate = alt.match(
           /วันที่ (\d{2}\/\d{2}\/\d{4}) @(\d{2}:\d{2})/
         );
         const matchAccount = alt.match(/เข้าบัญชี ([A-Z0-9-]+)/);
+        const matchBalance = alt.match(/ยอดเงินที่ใช้ได้ ([\d,]+\.\d{2}) บาท/);
 
         if (!matchAmount) return null; // ถ้าไม่พบยอดเงินให้ข้าม
 
@@ -81,13 +65,15 @@ async function fetchLineTransactions(
 
         return {
           transactionid: msg.id,
-          bank_sender: null, // ถ้ามีชื่อผู้โอนใน FLEX_JSON จะ parse เพิ่มได้ภายหลัง
+          bank_sender: null,
           amount: matchAmount[1].replace(/,/g, ""),
           status: "เงินเข้า",
           timestamp,
           time: matchDate
             ? `${matchDate[1].replace(/\//g, "-")} ${matchDate[2]}:00`
             : new Date(timestamp).toISOString().replace("T", " ").split(".")[0],
+          account_to: matchAccount ? matchAccount[1] : null,
+          balance: matchBalance ? matchBalance[1].replace(/,/g, "") : null, // ✅ เพิ่มยอดคงเหลือ
         };
       })
       .filter(Boolean);
